@@ -215,3 +215,44 @@ fn test_enum_rename_all_supported_values() {
 		"IN-PROGRESS"
 	);
 }
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(rename_all = "snake_case")]
+struct NestedChild {
+	order_total: i64,
+	#[surreal(rename = "EXPLICIT")]
+	order_status: String,
+}
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(rename_all = "camelCase")]
+struct NestedParent {
+	child_payload: NestedChild,
+}
+
+#[test]
+fn test_nested_struct_rename_all_is_container_local() {
+	let value = NestedParent {
+		child_payload: NestedChild {
+			order_total: 42,
+			order_status: "ok".into(),
+		},
+	}
+	.into_value();
+
+	if let Value::Object(obj) = &value {
+		assert!(obj.get("child_payload").is_none());
+		let Some(Value::Object(child)) = obj.get("childPayload") else {
+			panic!("Expected childPayload to be an object");
+		};
+
+		assert_eq!(child.get("order_total"), Some(&Value::Number(42.into())));
+		assert_eq!(child.get("EXPLICIT"), Some(&Value::String("ok".into())));
+		assert!(child.get("orderTotal").is_none());
+		assert!(child.get("order_status").is_none());
+	} else {
+		panic!("Expected object value");
+	}
+}
