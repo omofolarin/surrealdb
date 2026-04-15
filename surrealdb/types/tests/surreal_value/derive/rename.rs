@@ -39,8 +39,8 @@ fn test_enum_variant_rename_named_variant() {
 	assert_eq!(
 		value,
 		Value::Object(object! {
-			"customer_won".to_string() => Value::Object(object! {
-				"reason".to_string() => Value::String("chargeback".into())
+			"customer_won": Value::Object(object! {
+				"reason": Value::String("chargeback".into())
 			})
 		})
 	);
@@ -60,7 +60,7 @@ fn test_enum_variant_rename_unnamed_variant() {
 	assert_eq!(
 		value,
 		Value::Object(object! {
-			"customer_won".to_string() => Value::String("chargeback".into())
+			"customer_won": Value::String("chargeback".into())
 		})
 	);
 }
