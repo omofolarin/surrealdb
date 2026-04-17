@@ -41,9 +41,17 @@ pub(crate) fn unraw(ident: &syn::Ident) -> String {
 /// - `#[surreal(crate = "path")]` - Specify a custom path to the types crate (e.g.,
 ///   `surrealdb::types`, `::surrealdb_types`, `crate`). If omitted, the default is chosen by
 ///   feature: `sdk-path` → `::surrealdb::types`, else `::surrealdb_types`.
+/// - `#[surreal(untagged)]` - Use untagged enum representation
 /// - `#[surreal(tag = "type")]` - Specify a custom tag field for enum variants
 /// - `#[surreal(content = "data")]` - Specify a custom content field for enum variants
-/// - `#[surreal(rename = "name")]` - Rename a field or variant
+/// - `#[surreal(rename = "name")]` - Rename a field or enum variant
+/// - `#[surreal(rename_all = "...")]` - Apply a case transform to struct fields or enum variants.
+///   Supported values: `lowercase`, `UPPERCASE`, `PascalCase`, `camelCase`, `snake_case`,
+///   `SCREAMING_SNAKE_CASE`, `kebab-case`, `SCREAMING-KEBAB-CASE`
+/// - `#[surreal(uppercase)]` - Uppercase enum variant names (legacy alias of
+///   `#[surreal(rename_all = "UPPERCASE")]`)
+/// - `#[surreal(lowercase)]` - Lowercase enum variant names (legacy alias of
+///   `#[surreal(rename_all = "lowercase")]`)
 /// - `#[surreal(skip)]` - Skip a field during serialization
 /// - `#[surreal(wrap)]` - Wrap a type that doesn't implement `SurrealValue` but does implement
 ///   `Serialize + Deserialize` with `SerdeWrapper`
