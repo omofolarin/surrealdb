@@ -315,7 +315,6 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b18050c2cd6fe86c3a76584ef5e0baf286d038cda203eb6223df2cc413565f7"
 dependencies = [
- "heck 0.5.0",
  "proc-macro2",
  "quote",
  "syn 2.0.114",
@@ -7385,6 +7384,7 @@ dependencies = [
 name = "surrealdb-types-derive"
 version = "3.1.0-alpha"
 dependencies = [
+ "heck 0.4.1",
  "proc-macro2",
  "quote",
  "syn 2.0.114",
