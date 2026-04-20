@@ -44,6 +44,13 @@ fn test_enum_variant_rename_named_variant() {
 			})
 		})
 	);
+
+	assert_eq!(
+		RenamedNamedVariant::from_value(value).unwrap(),
+		RenamedNamedVariant::CustomerWon {
+			reason: "chargeback".into(),
+		}
+	);
 }
 
 #[derive(SurrealValue, Debug, PartialEq)]
@@ -62,6 +69,11 @@ fn test_enum_variant_rename_unnamed_variant() {
 		Value::Object(object! {
 			"customer_won": Value::String("chargeback".into())
 		})
+	);
+
+	assert_eq!(
+		RenamedUnnamedVariant::from_value(value).unwrap(),
+		RenamedUnnamedVariant::CustomerWon("chargeback".into())
 	);
 }
 
