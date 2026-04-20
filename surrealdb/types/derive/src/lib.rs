@@ -44,14 +44,17 @@ pub(crate) fn unraw(ident: &syn::Ident) -> String {
 /// - `#[surreal(untagged)]` - Use untagged enum representation
 /// - `#[surreal(tag = "type")]` - Specify a custom tag field for enum variants
 /// - `#[surreal(content = "data")]` - Specify a custom content field for enum variants
-/// - `#[surreal(rename = "name")]` - Rename a field or enum variant
+/// - `#[surreal(rename = "name")]` - Rename a field or enum variant. Applying this at the struct
+///   container level is a compile error (it has no defined semantic).
 /// - `#[surreal(rename_all = "...")]` - Apply a case transform to struct fields or enum variants.
 ///   Supported values: `lowercase`, `UPPERCASE`, `PascalCase`, `camelCase`, `snake_case`,
-///   `SCREAMING_SNAKE_CASE`, `kebab-case`, `SCREAMING-KEBAB-CASE`
-/// - `#[surreal(uppercase)]` - Uppercase enum variant names (legacy alias of
-///   `#[surreal(rename_all = "UPPERCASE")]`)
-/// - `#[surreal(lowercase)]` - Lowercase enum variant names (legacy alias of
-///   `#[surreal(rename_all = "lowercase")]`)
+///   `SCREAMING_SNAKE_CASE`, `kebab-case`, `SCREAMING-KEBAB-CASE`. An explicit per-field or
+///   per-variant `rename` takes precedence over the container transform. Combining `rename_all`
+///   with the legacy `uppercase`/`lowercase` attributes on the same enum is a compile error.
+/// - `#[surreal(uppercase)]` - Uppercase enum variant names. Legacy alias of `rename_all =
+///   "UPPERCASE"`; prefer `rename_all` in new code.
+/// - `#[surreal(lowercase)]` - Lowercase enum variant names. Legacy alias of `rename_all =
+///   "lowercase"`; prefer `rename_all` in new code.
 /// - `#[surreal(skip)]` - Skip a field during serialization
 /// - `#[surreal(wrap)]` - Wrap a type that doesn't implement `SurrealValue` but does implement
 ///   `Serialize + Deserialize` with `SerdeWrapper`

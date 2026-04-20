@@ -66,19 +66,36 @@ impl EnumAttributes {
 							));
 						}
 					} else if meta.path.is_ident("rename_all") {
-						if let Ok(value) = meta.value()
-							&& let Ok(lit_str) = value.parse::<LitStr>()
-						{
-							enum_attrs.rename_all = Casing::from_rename_all(&lit_str.value());
-							assert!(
-								enum_attrs.rename_all.is_some(),
-								"Invalid rename_all value: {}",
-								lit_str.value()
+						if enum_attrs.casing.is_some() {
+							panic!(
+								"Cannot combine rename_all with the legacy uppercase/lowercase attribute on the same enum; remove the legacy attribute"
 							);
 						}
+						let Ok(value) = meta.value() else {
+							panic!(
+								"rename_all requires a value, e.g. #[surreal(rename_all = \"snake_case\")]"
+							);
+						};
+						let Ok(lit_str) = value.parse::<LitStr>() else {
+							panic!("Failed to parse rename_all attribute");
+						};
+						let Some(casing) = Casing::from_rename_all(&lit_str.value()) else {
+							panic!("Invalid rename_all value: {}", lit_str.value());
+						};
+						enum_attrs.rename_all = Some(casing);
 					} else if meta.path.is_ident("uppercase") {
+						if enum_attrs.rename_all.is_some() {
+							panic!(
+								"Cannot combine rename_all with the legacy uppercase/lowercase attribute on the same enum; remove the legacy attribute"
+							);
+						}
 						enum_attrs.casing = Some(Casing::Uppercase);
 					} else if meta.path.is_ident("lowercase") {
+						if enum_attrs.rename_all.is_some() {
+							panic!(
+								"Cannot combine rename_all with the legacy uppercase/lowercase attribute on the same enum; remove the legacy attribute"
+							);
+						}
 						enum_attrs.casing = Some(Casing::Lowercase);
 					}
 					Ok(())
