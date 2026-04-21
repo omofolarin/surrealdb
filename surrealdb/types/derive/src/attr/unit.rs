@@ -51,6 +51,12 @@ impl UnitAttributes {
 			}
 		}
 
+		if variant_attrs.rename.is_some() && variant_attrs.value.is_some() {
+			panic!(
+				"Cannot combine #[surreal(rename)] with #[surreal(value)] on the same unit variant; `value` replaces the serialized representation entirely, so `rename` would be unreachable"
+			);
+		}
+
 		variant_attrs
 	}
 }

@@ -28,6 +28,10 @@ impl UnnamedFieldsAttributes {
 						unnamed_field_attrs.rename = Some(lit_str.value());
 					} else if meta.path.is_ident("tuple") {
 						unnamed_field_attrs.tuple = true;
+					} else if meta.path.is_ident("rename_all") {
+						panic!(
+							"#[surreal(rename_all)] has no effect on unnamed (tuple) fields; unnamed fields have no keys to transform"
+						);
 					} else if meta.path.is_ident("skip_content") {
 						if unnamed_field_attrs.skip_content.is_some() {
 							panic!(
