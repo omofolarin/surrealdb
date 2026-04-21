@@ -101,6 +101,14 @@ fn test_struct_rename_all() {
 	} else {
 		panic!("Expected object value");
 	}
+
+	assert_eq!(
+		Order::from_value(value).unwrap(),
+		Order {
+			customer_id: "c_1".into(),
+			total_amount: 7.5,
+		}
+	);
 }
 
 #[derive(SurrealValue, Debug, PartialEq)]
@@ -124,6 +132,13 @@ fn test_struct_rename_precedence_over_rename_all() {
 	} else {
 		panic!("Expected object value");
 	}
+
+	assert_eq!(
+		ExplicitRenameWins::from_value(value).unwrap(),
+		ExplicitRenameWins {
+			foo_bar: "value".into(),
+		}
+	);
 }
 
 macro_rules! assert_enum_rename_all_case {
@@ -267,4 +282,57 @@ fn test_nested_struct_rename_all_is_container_local() {
 	} else {
 		panic!("Expected object value");
 	}
+
+	assert_eq!(
+		NestedParent::from_value(value).unwrap(),
+		NestedParent {
+			child_payload: NestedChild {
+				order_total: 42,
+				order_status: "ok".into(),
+			},
+		}
+	);
+}
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(tag = "type", content = "data", rename_all = "snake_case")]
+enum TaggedEvent {
+	UserLoggedIn {
+		user_id: String,
+	},
+	SessionExpired,
+}
+
+#[test]
+fn test_enum_rename_all_applies_to_tagged_strategy() {
+	let login = TaggedEvent::UserLoggedIn {
+		user_id: "u_1".into(),
+	}
+	.into_value();
+	assert_eq!(
+		login,
+		Value::Object(object! {
+			"type": Value::String("user_logged_in".into()),
+			"data": Value::Object(object! {
+				"user_id": Value::String("u_1".into()),
+			}),
+		})
+	);
+	assert_eq!(
+		TaggedEvent::from_value(login).unwrap(),
+		TaggedEvent::UserLoggedIn {
+			user_id: "u_1".into(),
+		}
+	);
+
+	let expired = TaggedEvent::SessionExpired.into_value();
+	assert_eq!(
+		expired,
+		Value::Object(object! {
+			"type": Value::String("session_expired".into()),
+			"data": Value::Object(object! {}),
+		})
+	);
+	assert_eq!(TaggedEvent::from_value(expired).unwrap(), TaggedEvent::SessionExpired);
 }
