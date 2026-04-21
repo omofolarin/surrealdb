@@ -336,3 +336,131 @@ fn test_enum_rename_all_applies_to_tagged_strategy() {
 	);
 	assert_eq!(TaggedEvent::from_value(expired).unwrap(), TaggedEvent::SessionExpired);
 }
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(rename_all = "snake_case")]
+enum VariantKeyEvent {
+	UserLoggedIn {
+		user_id: String,
+	},
+	SessionExpired,
+}
+
+#[test]
+fn test_enum_rename_all_applies_to_variant_key_strategy() {
+	let login = VariantKeyEvent::UserLoggedIn {
+		user_id: "u_1".into(),
+	}
+	.into_value();
+	assert_eq!(
+		login,
+		Value::Object(object! {
+			"user_logged_in": Value::Object(object! {
+				"user_id": Value::String("u_1".into()),
+			}),
+		})
+	);
+	assert_eq!(
+		VariantKeyEvent::from_value(login).unwrap(),
+		VariantKeyEvent::UserLoggedIn {
+			user_id: "u_1".into(),
+		}
+	);
+
+	let expired = VariantKeyEvent::SessionExpired.into_value();
+	assert_eq!(
+		expired,
+		Value::Object(object! {
+			"session_expired": Value::Object(object! {}),
+		})
+	);
+	assert_eq!(VariantKeyEvent::from_value(expired).unwrap(), VariantKeyEvent::SessionExpired);
+}
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(tag = "type", rename_all = "snake_case")]
+enum TagKeyEvent {
+	UserLoggedIn {
+		user_id: String,
+	},
+	SessionExpired,
+}
+
+#[test]
+fn test_enum_rename_all_applies_to_tag_key_strategy() {
+	let login = TagKeyEvent::UserLoggedIn {
+		user_id: "u_1".into(),
+	}
+	.into_value();
+	assert_eq!(
+		login,
+		Value::Object(object! {
+			"type": Value::String("user_logged_in".into()),
+			"user_id": Value::String("u_1".into()),
+		})
+	);
+	assert_eq!(
+		TagKeyEvent::from_value(login).unwrap(),
+		TagKeyEvent::UserLoggedIn {
+			user_id: "u_1".into(),
+		}
+	);
+
+	let expired = TagKeyEvent::SessionExpired.into_value();
+	assert_eq!(
+		expired,
+		Value::Object(object! {
+			"type": Value::String("session_expired".into()),
+		})
+	);
+	assert_eq!(TagKeyEvent::from_value(expired).unwrap(), TagKeyEvent::SessionExpired);
+}
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(rename_all = "snake_case")]
+struct RawIdentStruct {
+	r#type: String,
+	r#struct: i64,
+}
+
+#[derive(SurrealValue, Debug, PartialEq)]
+#[surreal(crate = "surrealdb_types")]
+#[surreal(untagged, rename_all = "snake_case")]
+enum RawIdentEnum {
+	r#Type,
+	r#Struct,
+}
+
+#[test]
+fn test_rename_all_applies_to_raw_identifiers() {
+	let value = RawIdentStruct {
+		r#type: "t".into(),
+		r#struct: 3,
+	}
+	.into_value();
+
+	if let Value::Object(obj) = &value {
+		assert_eq!(obj.get("type"), Some(&Value::String("t".into())));
+		assert_eq!(obj.get("struct"), Some(&Value::Number(3.into())));
+		assert!(obj.get("r#type").is_none());
+	} else {
+		panic!("Expected object value");
+	}
+
+	assert_eq!(
+		RawIdentStruct::from_value(value).unwrap(),
+		RawIdentStruct {
+			r#type: "t".into(),
+			r#struct: 3,
+		}
+	);
+
+	assert_eq!(RawIdentEnum::r#Type.into_value(), Value::String("type".into()));
+	assert_eq!(
+		RawIdentEnum::from_value(Value::String("type".into())).unwrap(),
+		RawIdentEnum::r#Type,
+	);
+}
