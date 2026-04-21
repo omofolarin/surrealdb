@@ -57,6 +57,18 @@ impl UnitAttributes {
 			);
 		}
 
+		if variant_attrs.other && variant_attrs.value.is_some() {
+			panic!(
+				"Cannot combine #[surreal(other)] with #[surreal(value)] on the same unit variant; `other` is the deserialization fallback that matches anything, so a specific `value` would never be consulted"
+			);
+		}
+
+		if variant_attrs.other && variant_attrs.rename.is_some() {
+			panic!(
+				"Cannot combine #[surreal(other)] with #[surreal(rename)] on the same unit variant; `other` is the deserialization fallback and does not match on a specific variant name"
+			);
+		}
+
 		variant_attrs
 	}
 }
